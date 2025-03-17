@@ -10,9 +10,14 @@
     <h2>Welcome, <span id="playerName"></span>!</h2>
     <p>Your Player ID: <strong id="playerID"></strong></p>
     <p>Your Wallet: ₹<span id="walletAmount"></span></p>
-  </div>
 
-  <div class="container">
+    <!-- Wallet Recharge Section -->
+  <h3>Recharge Wallet</h3>
+  <input type="number" id="rechargeAmount" placeholder="Enter amount" />
+  <button onclick="rechargeWallet()">Recharge</button>
+</div>
+  
+   <div class="container">
     <h2>Upcoming Tournaments</h2>
     <div style="max-height: 500px; overflow-y: auto;">
       <!-- Sample tournament card -->
@@ -60,6 +65,20 @@
         alert("Insufficient balance to register.");
       }
     }
+    
+    function rechargeWallet() {
+  const amount = parseInt(document.getElementById("rechargeAmount").value);
+  if (amount > 0) {
+    let wallet = parseInt(localStorage.getItem("wallet")) || 0;
+    wallet += amount;
+    localStorage.setItem("wallet", wallet);
+    updateWalletDisplay();
+    alert("Wallet recharged successfully!");
+  } else {
+    alert("Enter a valid amount to recharge.");
+  }
+}
+
   </script>
 </body>
 </html>
