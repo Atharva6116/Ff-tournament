@@ -12,39 +12,16 @@
     <p>Your Wallet: ₹<span id="walletAmount"></span></p>
 
     <!-- Wallet Recharge Section -->
-  <h3>Recharge Wallet</h3>
-  <input type="number" id="rechargeAmount" placeholder="Enter amount" />
-  <button onclick="rechargeWallet()">Recharge</button>
+    <h3>Recharge Wallet</h3>
+    <input type="number" id="rechargeAmount" placeholder="Enter amount" />
+    <button onclick="rechargeWallet()">Recharge</button>
   </div> 
 
- <div id="tournamentContainer" style="max-height: 500px; overflow-y: auto;"></div>
-      
-    <!-- Sample tournament card -->
-    <!--
-    <div style="border: 1px solid #fff; margin: 10px; padding: 10px;">
-     <p><strong>Tournament #1</strong></p>
-     <p>Players Joined: <span class="joinCount" data-id="t1">20</span>/30</p>
-     <p>Prize: ₹1000</p>
-     <p>Time: 6:00 PM</p>
-     <button onclick="registerForTournament(this, 10)">Register (₹10)</button>
-   </div>
-   -->
-
-      
-      <!-- Duplicate the above block for multiple tournaments -->
-      <div style="border: 1px solid #fff; margin: 10px; padding: 10px;">
-        <p><strong>Tournament #2</strong></p>
-        <p>Players Joined: <span class="joinCount" data-id="t2">5</span>/30</p>
-
-        <p>Prize: ₹500</p>
-        <p>Time: 7:30 PM</p>
-        <button onclick="registerForTournament(this, 20)">Register (₹20)</button>
-      </div>
-    </div>
-  </div>
+  <!-- Tournament list container -->
+  <div id="tournamentContainer" style="max-height: 500px; overflow-y: auto;"></div>
 
   <script>
-    // Get user data
+    // Display user info
     const name = localStorage.getItem("userIGN") || "Player";
     const id = localStorage.getItem("userID") || "Unknown";
     const wallet = parseInt(localStorage.getItem("wallet")) || 0;
@@ -53,34 +30,31 @@
     document.getElementById("playerID").textContent = id;
     document.getElementById("walletAmount").textContent = wallet;
 
-    
-
-    function restoreJoinCounts() {
-  document.querySelectorAll(".joinCount").forEach(span => {
-    const id = span.getAttribute("data-id");
-    const savedCount = localStorage.getItem("joinCount_" + id);
-    if (savedCount) {
-      span.textContent = savedCount;
-    }
-  });
-}
-restoreJoinCounts();
-
-
     function updateWalletDisplay() {
       document.getElementById("walletAmount").textContent = localStorage.getItem("wallet") || 0;
     }
 
-    function registerForTournament(button, entryFee, tournamentId) {
+    function rechargeWallet() {
+      const amount = parseInt(document.getElementById("rechargeAmount").value);
+      if (amount > 0) {
+        let wallet = parseInt(localStorage.getItem("wallet")) || 0;
+        wallet += amount;
+        localStorage.setItem("wallet", wallet);
+        updateWalletDisplay();
+        alert("Wallet recharged successfully!");
+      } else {
+        alert("Enter a valid amount to recharge.");
+      }
+    }
 
+    function registerForTournament(button, entryFee, tournamentId) {
       let wallet = parseInt(localStorage.getItem("wallet")) || 0;
       if (wallet >= entryFee) {
         wallet -= entryFee;
         localStorage.setItem("wallet", wallet);
 
         // Update join count
-        const const span = document.querySelector(`.joinCount[data-id="${tournamentId}"]`);
-
+        const countSpan = document.querySelector(`.joinCount[data-id="${tournamentId}"]`);
         const id = countSpan.getAttribute('data-id');
         let currentCount = parseInt(countSpan.textContent) || 0;
         currentCount++;
@@ -88,74 +62,71 @@ restoreJoinCounts();
         localStorage.setItem("joinCount_" + id, currentCount);
 
         updateWalletDisplay();
+        alert("You have successfully registered!");
       } else {
         alert("Insufficient balance to register.");
       }
     }
-    
-    function rechargeWallet() {
-  const amount = parseInt(document.getElementById("rechargeAmount").value);
-  if (amount > 0) {
-    let wallet = parseInt(localStorage.getItem("wallet")) || 0;
-    wallet += amount;
-    localStorage.setItem("wallet", wallet);
-    updateWalletDisplay();
-    alert("Wallet recharged successfully!");
-  } else {
-    alert("Enter a valid amount to recharge.");
-  }
-}
-const tournaments = [
-  {
-    id: "t1",
-    name: "Squad Battle #1",
-    prize: "₹1000",
-    time: "6:00 PM",
-    entryFee: 10
-  },
-  {
-    id: "t2",
-    name: "Duo Rush #2",
-    prize: "₹500",
-    time: "7:30 PM",
-    entryFee: 20
-  },
-  {
-    id: "t3",
-    name: "Custom Solo #3",
-    prize: "₹300",
-    time: "9:00 PM",
-    entryFee: 15
-  }
-];
 
-function loadTournaments() {
-  const container = document.getElementById("tournamentContainer");
-  container.innerHTML = "";
+    function restoreJoinCounts() {
+      document.querySelectorAll(".joinCount").forEach(span => {
+        const id = span.getAttribute("data-id");
+        const savedCount = localStorage.getItem("joinCount_" + id);
+        if (savedCount) {
+          span.textContent = savedCount;
+        }
+      });
+    }
 
-  tournaments.forEach(t => {
-    const div = document.createElement("div");
-    div.style.border = "1px solid #fff";
-    div.style.margin = "10px";
-    div.style.padding = "10px";
+    const tournaments = [
+      {
+        id: "t1",
+        name: "Squad Battle #1",
+        prize: "₹1000",
+        time: "6:00 PM",
+        entryFee: 10
+      },
+      {
+        id: "t2",
+        name: "Duo Rush #2",
+        prize: "₹500",
+        time: "7:30 PM",
+        entryFee: 20
+      },
+      {
+        id: "t3",
+        name: "Custom Solo #3",
+        prize: "₹300",
+        time: "9:00 PM",
+        entryFee: 15
+      }
+    ];
 
-    div.innerHTML = `
-      <p><strong>${t.name}</strong></p>
-      <p>Players Joined: <span class="joinCount" data-id="${t.id}">0</span>/30</p>
-      <p>Prize: ${t.prize}</p>
-      <p>Time: ${t.time}</p>
-      <button onclick="registerForTournament(this, ${t.entryFee}, '${t.id}')">Register (₹${t.entryFee})</button>
-    `;
+    function loadTournaments() {
+      const container = document.getElementById("tournamentContainer");
+      container.innerHTML = "";
 
-    container.appendChild(div);
-  });
+      tournaments.forEach(t => {
+        const div = document.createElement("div");
+        div.style.border = "1px solid #fff";
+        div.style.margin = "10px";
+        div.style.padding = "10px";
 
-  restoreJoinCounts(); // Refresh join count display
-}
+        div.innerHTML = `
+          <p><strong>${t.name}</strong></p>
+          <p>Players Joined: <span class="joinCount" data-id="${t.id}">0</span>/30</p>
+          <p>Prize: ${t.prize}</p>
+          <p>Time: ${t.time}</p>
+          <button onclick="registerForTournament(this, ${t.entryFee}, '${t.id}')">Register (₹${t.entryFee})</button>
+        `;
 
-loadTournaments();
+        container.appendChild(div);
+      });
 
-    
+      restoreJoinCounts();
+    }
+
+    loadTournaments();
   </script>
 </body>
 </html>
