@@ -1,35 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Tournaments - FF Tournament Pro</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Tournaments - FF Tournament Pro</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+  <div class="container">
     <h2>Welcome, <span id="playerName"></span>!</h2>
     <p>Your Player ID: <strong id="playerID"></strong></p>
-</div>
+    <p>Your Wallet: ₹<span id="walletAmount"></span></p>
+  </div>
 
-    <div class="container">
-        <h2>Upcoming Tournaments</h2>
-        <div style="max-height: 500px; overflow-y: auto;">
-            <!-- Sample tournament cards -->
-            <div style="border: 1px solid #fff; margin: 10px; padding: 10px;">
-                <p><strong>Tournament #1</strong></p>
-                <p>Players Joined: 20/30</p>
-                <p>Prize: ₹100</p>
-                <p>Time: 6:00 PM</p>
-                <button>Register</button>
-            </div>
-            <!-- Copy and paste this card block 30 times with unique values -->
-        </div>
-        
-        <script>
+  <div class="container">
+    <h2>Upcoming Tournaments</h2>
+    <div style="max-height: 500px; overflow-y: auto;">
+      <!-- Sample tournament card -->
+      <div style="border: 1px solid #fff; margin: 10px; padding: 10px;">
+        <p><strong>Tournament #1</strong></p>
+        <p>Players Joined: 20/30</p>
+        <p>Prize: ₹1000</p>
+        <p>Time: 6:00 PM</p>
+        <button onclick="registerForTournament(this, 10)">Register (₹10)</button>
+      </div>
+
+      <!-- Duplicate the above block for multiple tournaments -->
+      <div style="border: 1px solid #fff; margin: 10px; padding: 10px;">
+        <p><strong>Tournament #2</strong></p>
+        <p>Players Joined: 5/30</p>
+        <p>Prize: ₹500</p>
+        <p>Time: 7:30 PM</p>
+        <button onclick="registerForTournament(this, 20)">Register (₹20)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get user data
     const name = localStorage.getItem("userIGN") || "Player";
     const id = localStorage.getItem("userID") || "Unknown";
+    const wallet = parseInt(localStorage.getItem("wallet")) || 0;
+
     document.getElementById("playerName").textContent = name;
     document.getElementById("playerID").textContent = id;
-        </script>
+    document.getElementById("walletAmount").textContent = wallet;
+
+    function updateWalletDisplay() {
+      document.getElementById("walletAmount").textContent = localStorage.getItem("wallet") || 0;
+    }
+
+    function registerForTournament(button, entryFee) {
+      let wallet = parseInt(localStorage.getItem("wallet")) || 0;
+      if (wallet >= entryFee) {
+        wallet -= entryFee;
+        localStorage.setItem("wallet", wallet);
+        alert("Registered successfully! ₹" + entryFee + " deducted.");
+        updateWalletDisplay();
+      } else {
+        alert("Insufficient balance to register.");
+      }
+    }
+  </script>
 </body>
 </html>
