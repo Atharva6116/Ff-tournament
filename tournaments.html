@@ -23,7 +23,8 @@
       <!-- Sample tournament card -->
       <div style="border: 1px solid #fff; margin: 10px; padding: 10px;">
         <p><strong>Tournament #1</strong></p>
-        <p>Players Joined: 20/30</p>
+        <p>Players Joined: <span class="joinCount" data-id="t1">20</span>/30</p>
+
         <p>Prize: ₹1000</p>
         <p>Time: 6:00 PM</p>
         <button onclick="registerForTournament(this, 10)">Register (₹10)</button>
@@ -32,7 +33,8 @@
       <!-- Duplicate the above block for multiple tournaments -->
       <div style="border: 1px solid #fff; margin: 10px; padding: 10px;">
         <p><strong>Tournament #2</strong></p>
-        <p>Players Joined: 5/30</p>
+        <p>Players Joined: <span class="joinCount" data-id="t2">5</span>/30</p>
+
         <p>Prize: ₹500</p>
         <p>Time: 7:30 PM</p>
         <button onclick="registerForTournament(this, 20)">Register (₹20)</button>
@@ -50,6 +52,20 @@
     document.getElementById("playerID").textContent = id;
     document.getElementById("walletAmount").textContent = wallet;
 
+    
+
+    function restoreJoinCounts() {
+  document.querySelectorAll(".joinCount").forEach(span => {
+    const id = span.getAttribute("data-id");
+    const savedCount = localStorage.getItem("joinCount_" + id);
+    if (savedCount) {
+      span.textContent = savedCount;
+    }
+  });
+}
+restoreJoinCounts();
+
+
     function updateWalletDisplay() {
       document.getElementById("walletAmount").textContent = localStorage.getItem("wallet") || 0;
     }
@@ -59,7 +75,15 @@
       if (wallet >= entryFee) {
         wallet -= entryFee;
         localStorage.setItem("wallet", wallet);
-        alert("Registered successfully! ₹" + entryFee + " deducted.");
+
+        // Update join count
+        const countSpan = button.parentElement.querySelector('.joinCount');
+        const id = countSpan.getAttribute('data-id');
+        let currentCount = parseInt(countSpan.textContent) || 0;
+        currentCount++;
+        countSpan.textContent = currentCount;
+        localStorage.setItem("joinCount_" + id, currentCount);
+
         updateWalletDisplay();
       } else {
         alert("Insufficient balance to register.");
