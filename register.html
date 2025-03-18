@@ -15,26 +15,32 @@
 
   <script src="data.js"></script>
   <script>
-    function register() {
-      const mobile = document.getElementById("mobile").value.trim();
+  let localUsers = JSON.parse(localStorage.getItem("users")) || [];
 
-      if (!/^\d{10}$/.test(mobile)) {
-        alert("Please enter a valid 10-digit mobile number.");
-        return;
-      }
+  function register() {
+    const mobile = document.getElementById("mobile").value.trim();
 
-      const existingUser = users.find(u => u.mobile === mobile);
-      if (existingUser) {
-        alert("Mobile number already registered. Please login.");
-        window.location.href = "login.html";
-        return;
-      }
-
-      users.push({ mobile: mobile, wallet: 0 });
-      localStorage.setItem("mobile", mobile);
-      alert("Registration successful!");
-      window.location.href = "tournaments.html";
+    if (!/^\d{10}$/.test(mobile)) {
+      alert("Enter a valid 10-digit mobile number.");
+      return;
     }
-  </script>
+
+    const existing = localUsers.find(u => u.mobile === mobile);
+    if (existing) {
+      alert("User already exists. Please login.");
+      window.location.href = "login.html";
+      return;
+    }
+
+    const newUser = { mobile: mobile, wallet: 0, blocked: false, players: [] };
+    localUsers.push(newUser);
+    localStorage.setItem("users", JSON.stringify(localUsers));
+    localStorage.setItem("mobile", mobile);
+
+    alert("Registration successful!");
+    window.location.href = "tournaments.html";
+  }
+</script>
+
 </body>
 </html>
