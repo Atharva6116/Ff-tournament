@@ -1,3 +1,4 @@
+<!-- register.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,48 +7,44 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="form-container">
+  <div class="container">
     <h2>Register</h2>
-    <input type="text" id="mobile" placeholder="Enter Mobile Number" />
+    <input type="text" id="mobile" placeholder="Enter Mobile Number">
     <button onclick="register()">Register</button>
-    <p>Already have an account? <a href="login.html">Login</a></p>
+    <p>Already have an account? <a href="index.html">Login here</a></p>
   </div>
 
   <script src="data.js"></script>
   <script>
-  function register() {
-    const mobile = document.getElementById("mobile").value.trim();
+    function register() {
+      const mobile = document.getElementById("mobile").value;
+      if (mobile.length !== 10 || isNaN(mobile)) {
+        alert("Enter a valid 10-digit mobile number");
+        return;
+      }
 
-    if (!/^\d{10}$/.test(mobile)) {
-      alert("Enter a valid 10-digit mobile number.");
-      return;
+      let existingUser = users.find(u => u.mobile === mobile);
+      if (existingUser) {
+        alert("User already exists. Please login.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      users.push({
+        mobile: mobile,
+        wallet: 0,
+        blocked: false,
+        transactions: [],
+        registeredTournaments: []
+      });
+
+      // Save updated user list
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("loginMobile", mobile);
+      alert("Registration successful. Proceed to OTP verification.");
+      window.location.href = "otp.html";
     }
-
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const already = users.find(u => u.mobile === mobile);
-    if (already) {
-      alert("User already exists. Please login.");
-      window.location.href = "login.html";
-      return;
-    }
-
-    const newUser = {
-      mobile: mobile,
-      wallet: 0,
-      blocked: false,
-      players: []
-    };
-
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
-    localStorage.setItem("mobile", mobile);
-
-    alert("Registration successful!");
-    window.location.href = "tournaments.html";
-  }
-</script>
-
-
+  </script>
 </body>
 </html>
+
