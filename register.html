@@ -15,8 +15,6 @@
 
   <script src="data.js"></script>
   <script>
-  let localUsers = JSON.parse(localStorage.getItem("users")) || [];
-
   function register() {
     const mobile = document.getElementById("mobile").value.trim();
 
@@ -25,22 +23,31 @@
       return;
     }
 
-    const existing = localUsers.find(u => u.mobile === mobile);
-    if (existing) {
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    const already = users.find(u => u.mobile === mobile);
+    if (already) {
       alert("User already exists. Please login.");
       window.location.href = "login.html";
       return;
     }
 
-    const newUser = { mobile: mobile, wallet: 0, blocked: false, players: [] };
-    localUsers.push(newUser);
-    localStorage.setItem("users", JSON.stringify(localUsers));
+    const newUser = {
+      mobile: mobile,
+      wallet: 0,
+      blocked: false,
+      players: []
+    };
+
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users));
     localStorage.setItem("mobile", mobile);
 
     alert("Registration successful!");
     window.location.href = "tournaments.html";
   }
 </script>
+
 
 </body>
 </html>
