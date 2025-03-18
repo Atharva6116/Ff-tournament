@@ -2,43 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Recharge Wallet</title>
+  <title>Recharge Wallet - FF Tournament Pro</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="header">
+  <div class="container">
     <h2>Recharge Wallet</h2>
-  </div>
-
-  <div class="recharge-container">
-    <label for="amount">Enter Amount (₹):</label>
-    <input type="number" id="amount" placeholder="e.g. 100">
-    <button onclick="recharge()">Recharge</button>
+    <input type="number" id="amount" placeholder="Enter amount">
+    <button onclick="recharge()">Add to Wallet</button>
+    <br><br>
+    <a href="tournaments.html" style="color: #0f0;">Back to Tournaments</a>
   </div>
 
   <script src="data.js"></script>
   <script>
-    const mobile = localStorage.getItem("mobile");
-    if (!mobile) {
-      alert("Please login first.");
-      window.location.href = "login.html";
-    }
+    const mobile = localStorage.getItem("loggedInMobile");
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let user = users.find(u => u.mobile === mobile);
 
-    const user = users.find(u => u.mobile === mobile);
     if (!user) {
-      alert("User not found.");
-      window.location.href = "login.html";
+      alert("Not logged in. Redirecting...");
+      window.location.href = "index.html";
     }
 
     function recharge() {
-      const amount = parseInt(document.getElementById("amount").value);
-      if (isNaN(amount) || amount <= 0) {
-        alert("Please enter a valid amount.");
+      const amt = parseInt(document.getElementById("amount").value);
+      if (isNaN(amt) || amt <= 0) {
+        alert("Enter a valid amount");
         return;
       }
 
-      user.wallet += amount;
-      alert(`₹${amount} added to your wallet!`);
+      user.wallet += amt;
+      user.transactions.push({
+        type: "recharge",
+        amount: amt,
+        time: new Date().toLocaleString()
+      });
+
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Wallet recharged successfully!");
       window.location.href = "tournaments.html";
     }
   </script>
