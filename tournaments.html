@@ -60,6 +60,10 @@ let user = users.find(u => u.mobile === mobile);
 
       // Check balance
       if (user.wallet < tournament.entryFee) {
+        // Update saved user data
+         users = users.map(u => u.mobile === user.mobile ? user : u);
+         localStorage.setItem("users", JSON.stringify(users));
+
         const linkDiv = document.getElementById(`recharge-link-${index}`);
         linkDiv.innerHTML = `<a href="recharge.html" class="recharge-btn">Insufficient balance. Recharge Wallet</a>`;
         return;
