@@ -42,6 +42,7 @@
         <p>Time: ${tournament.time}</p>
         <p id="joined-${index}">Players Joined: ${tournament.joined}</p>
         <button onclick="register(${index})">Register</button>
+        <div id="recharge-link-${index}" class="recharge-link" style="margin-top: 5px;"></div>
       `;
       container.appendChild(card);
     });
@@ -49,13 +50,16 @@
     function register(index) {
       const tournament = tournaments[index];
 
-      if (user.wallet < tournament.entryFee) {
-        alert("Insufficient balance. Please recharge your wallet.");
+      // Check if user already joined
+      if (tournament.players.includes(user.mobile)) {
+        alert("Already registered for this tournament.");
         return;
       }
 
-      if (tournament.players.includes(user.mobile)) {
-        alert("Already registered for this tournament.");
+      // Check balance
+      if (user.wallet < tournament.entryFee) {
+        const linkDiv = document.getElementById(`recharge-link-${index}`);
+        linkDiv.innerHTML = `<a href="recharge.html" class="recharge-btn">Insufficient balance. Recharge Wallet</a>`;
         return;
       }
 
