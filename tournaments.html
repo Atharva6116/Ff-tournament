@@ -4,8 +4,39 @@
   <meta charset="UTF-8">
   <title>Tournaments - FF Tournament Pro</title>
   <link rel="stylesheet" href="style.css">
+  <script src="data.js"></script> <!-- Shared data from admin panel -->
+  <style>
+    body {
+      background: #121212;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      margin-bottom: 30px;
+    }
+    .tournament-card {
+      background: #1e1e1e;
+      border: 1px solid #444;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    .tournament-card button {
+      background: #03dac6;
+      color: black;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+
   <div class="container">
     <h2>Welcome, <span id="playerName"></span>!</h2>
     <p>Your Player ID: <strong id="playerID"></strong></p>
@@ -15,31 +46,43 @@
     <h3>Recharge Wallet</h3>
     <input type="number" id="rechargeAmount" placeholder="Enter amount" />
     <button onclick="rechargeWallet()">Recharge</button>
-  </div> 
+  </div>
 
-  <!-- Tournament list container -->
-  <div id="tournamentContainer" style="max-height: 500px; overflow-y: auto;"></div>
+  <div class="container">
+    <h2>Available Tournaments</h2>
+    <div id="tournamentContainer" style="max-height: 500px; overflow-y: auto;"></div>
+  </div>
 
   <script>
-    // Display user info
-    const name = localStorage.getItem("userIGN") || "Player";
-    const id = localStorage.getItem("userID") || "Unknown";
-    const wallet = parseInt(localStorage.getItem("wallet")) || 0;
+    // User info from localStorage
+    const userID = localStorage.getItem("userID");
+    const userIGN = localStorage.getItem("userIGN");
+    const playerName = document.getElementById("playerName");
+    const playerID = document.getElementById("playerID");
+    const walletDisplay = document.getElementById("walletAmount");
 
-    document.getElementById("playerName").textContent = name;
-    document.getElementById("playerID").textContent = id;
-    document.getElementById("walletAmount").textContent = wallet;
+    const currentUser = users.find(u => u.mobile === userID);
+
+    if (!currentUser) {
+      alert("User not found. Please login again.");
+    } else if (currentUser.blocked) {
+      alert("You are blocked from playing tournaments.");
+    } else {
+      playerName.textContent = userIGN || "Player";
+      playerID.textContent = userID;
+      walletDisplay.textContent = currentUser.wallet;
+
+      loadTournaments();
+    }
 
     function updateWalletDisplay() {
-      document.getElementById("walletAmount").textContent = localStorage.getItem("wallet") || 0;
+      walletDisplay.textContent = currentUser.wallet;
     }
 
     function rechargeWallet() {
       const amount = parseInt(document.getElementById("rechargeAmount").value);
       if (amount > 0) {
-        let wallet = parseInt(localStorage.getItem("wallet")) || 0;
-        wallet += amount;
-        localStorage.setItem("wallet", wallet);
+        currentUser.wallet += amount;
         updateWalletDisplay();
         alert("Wallet recharged successfully!");
       } else {
@@ -47,60 +90,23 @@
       }
     }
 
-    function registerForTournament(button, entryFee, tournamentId) {
-      let wallet = parseInt(localStorage.getItem("wallet")) || 0;
-      if (wallet >= entryFee) {
-        wallet -= entryFee;
-        localStorage.setItem("wallet", wallet);
+    function registerForTournament(tournamentId) {
+      const tournament = tournaments.find(t => t.id === tournamentId);
+      if (!tournament) return alert("Tournament not found.");
 
-        // Update join count
-        const countSpan = document.querySelector(`.joinCount[data-id="${tournamentId}"]`);
-        const id = countSpan.getAttribute('data-id');
-        let currentCount = parseInt(countSpan.textContent) || 0;
-        currentCount++;
-        countSpan.textContent = currentCount;
-        localStorage.setItem("joinCount_" + id, currentCount);
-
-        updateWalletDisplay();
-        alert("You have successfully registered!");
-      } else {
-        alert("Insufficient balance to register.");
+      if (currentUser.wallet < tournament.entryFee) {
+        return alert("Insufficient balance.");
       }
-    }
 
-    function restoreJoinCounts() {
-      document.querySelectorAll(".joinCount").forEach(span => {
-        const id = span.getAttribute("data-id");
-        const savedCount = localStorage.getItem("joinCount_" + id);
-        if (savedCount) {
-          span.textContent = savedCount;
-        }
-      });
-    }
+      tournament.joined++;
+      currentUser.wallet -= tournament.entryFee;
+      registrations.push({ tournamentId, userId: userID });
 
-    const tournaments = [
-      {
-        id: "t1",
-        name: "Squad Battle #1",
-        prize: "₹1000",
-        time: "6:00 PM",
-        entryFee: 10
-      },
-      {
-        id: "t2",
-        name: "Duo Rush #2",
-        prize: "₹500",
-        time: "7:30 PM",
-        entryFee: 20
-      },
-      {
-        id: "t3",
-        name: "Custom Solo #3",
-        prize: "₹300",
-        time: "9:00 PM",
-        entryFee: 15
-      }
-    ];
+      updateWalletDisplay();
+      loadTournaments();
+
+      alert(`You are registered for ${tournament.name}. ₹${tournament.entryFee} deducted.`);
+    }
 
     function loadTournaments() {
       const container = document.getElementById("tournamentContainer");
@@ -108,27 +114,18 @@
 
       tournaments.forEach(t => {
         const div = document.createElement("div");
-        div.style.border = "1px solid #fff";
-        div.style.margin = "10px";
-        div.style.padding = "10px";
-
+        div.className = "tournament-card";
         div.innerHTML = `
           <p><strong>${t.name}</strong></p>
-          <p>Players Joined: <span class="joinCount" data-id="${t.id}">0</span>/30</p>
+          <p>Players Joined: ${t.joined}/${t.slots}</p>
           <p>Prize: ${t.prize}</p>
           <p>Time: ${t.time}</p>
-          <button onclick="registerForTournament(this, ${t.entryFee}, '${t.id}')">Register (₹${t.entryFee})</button>
+          <button onclick="registerForTournament('${t.id}')">Register (₹${t.entryFee})</button>
         `;
-
         container.appendChild(div);
       });
-
-      restoreJoinCounts();
     }
-
-    loadTournaments();
   </script>
-  <script src="data.js"></script>
 
 </body>
 </html>
