@@ -15,25 +15,23 @@
 
   <script src="data.js"></script>
   <script>
-    function login() {
-      const mobile = document.getElementById("mobile").value.trim();
+  const users = JSON.parse(localStorage.getItem("users")) || [];
 
-      if (!/^\d{10}$/.test(mobile)) {
-        alert("Please enter a valid 10-digit mobile number.");
-        return;
-      }
+  function login() {
+    const mobile = document.getElementById("mobile").value.trim();
 
-      const user = users.find(u => u.mobile === mobile);
-      if (!user) {
-        alert("User not found. Please register first.");
-        window.location.href = "register.html";
-        return;
-      }
-
-      localStorage.setItem("mobile", mobile);
-      alert("Login successful!");
-      window.location.href = "tournaments.html";
+    const user = users.find(u => u.mobile === mobile);
+    if (!user) {
+      alert("User not found. Please register.");
+      window.location.href = "register.html";
+      return;
     }
-  </script>
+
+    localStorage.setItem("mobile", user.mobile);
+    alert("Login successful!");
+    window.location.href = "tournaments.html";
+  }
+</script>
+
 </body>
 </html>
