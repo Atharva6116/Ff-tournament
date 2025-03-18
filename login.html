@@ -9,28 +9,44 @@
     <div class="container">
         <h2>Login</h2>
         <form id="loginForm">
-            <input type="text" id="mobile" placeholder="Mobile Number"><br><br>
-            <input type="text" id="otp" placeholder="Enter OTP (use 1234)"><br><br>
+            <input type="text" id="mobile" placeholder="Mobile Number" required><br><br>
+            <input type="text" id="otp" placeholder="Enter OTP (use 1234)" required><br><br>
             <button type="submit">Login</button>
         </form>
     </div>
 
+    <script src="data.js"></script>
     <script>
         document.getElementById("loginForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevents form from reloading the page
+            event.preventDefault();
 
-            var otp = document.getElementById("otp").value;
+            const mobile = document.getElementById("mobile").value.trim();
+            const otp = document.getElementById("otp").value.trim();
 
-            if (otp === "1234") {
-                window.location.href = "tournaments.html"; // Redirect to the tournament page
-            } else {
+            if (otp !== "1234") {
                 alert("Invalid OTP! Please use 1234.");
+                return;
             }
+
+            // Check if user exists in data.js
+            const user = users.find(u => u.mobile === mobile);
+
+            if (!user) {
+                alert("Mobile number not found. Please check or contact admin.");
+                return;
+            }
+
+            if (user.blocked) {
+                alert("Your account is blocked. Contact admin.");
+                return;
+            }
+
+            // Save logged-in user to localStorage
+            localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+            // Redirect to tournaments page
+            window.location.href = "tournaments.html";
         });
     </script>
-    
-    <script src="data.js"></script>
-
 </body>
 </html>
-
