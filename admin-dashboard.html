@@ -10,20 +10,38 @@
       font-family: sans-serif;
       padding: 20px;
     }
-    h2 { margin-top: 40px; }
+    h2 {
+      margin-top: 40px;
+      color: #00e676;
+    }
     input, button {
       padding: 8px;
       margin: 5px;
     }
     .section {
-      border: 1px solid #fff;
+      border: 1px solid #333;
       padding: 15px;
       margin-bottom: 20px;
+      background: #1e1e1e;
+    }
+    button {
+      background-color: #00e676;
+      color: #000;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .logout {
+      float: right;
+      background-color: #f44336;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <h1>Admin Dashboard</h1>
+  <h1>Admin Dashboard <button class="logout" onclick="logout()">Logout</button></h1>
 
   <div class="section">
     <h2>Add Tournament</h2>
@@ -50,8 +68,15 @@
   </div>
 
   <script>
+    // Access Check
     if (localStorage.getItem("adminLoggedIn") !== "true") {
       alert("Access denied");
+      window.location.href = "admin.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("adminLoggedIn");
+      alert("Logged out");
       window.location.href = "admin.html";
     }
 
@@ -63,12 +88,15 @@
     const saveData = (key, data) => localStorage.setItem(key, JSON.stringify(data));
 
     function addTournament() {
-      const name = document.getElementById("tName").value;
-      const time = document.getElementById("tTime").value;
-      const prize = document.getElementById("tPrize").value;
+      const name = document.getElementById("tName").value.trim();
+      const time = document.getElementById("tTime").value.trim();
+      const prize = document.getElementById("tPrize").value.trim();
       const fee = parseInt(document.getElementById("tFee").value);
 
-      if (!name || !time || !prize || isNaN(fee)) return alert("Fill all fields properly!");
+      if (!name || !time || !prize || isNaN(fee)) {
+        alert("Fill all fields properly!");
+        return;
+      }
 
       const list = getData(tournamentKey);
       const id = "t" + Date.now();
@@ -83,7 +111,7 @@
       const div = document.getElementById("allTournaments");
       div.innerHTML = "";
       list.forEach(t => {
-        div.innerHTML += `<div>
+        div.innerHTML += `<div style="margin-bottom:10px;">
           <strong>${t.name}</strong> - Prize: ${t.prize} | Time: ${t.time} | Fee: ₹${t.fee}
           <button onclick="deleteTournament('${t.id}')">Delete</button>
         </div>`;
@@ -102,8 +130,8 @@
       const div = document.getElementById("userList");
       div.innerHTML = "";
       list.forEach((u, i) => {
-        div.innerHTML += `<div>
-          ${u.name} (ID: ${u.id}) - ₹${u.wallet} 
+        div.innerHTML += `<div style="margin-bottom:10px;">
+          ${u.name} (ID: ${u.id}) - ₹${u.wallet}
           <input type="number" id="addBal${i}" placeholder="Add ₹">
           <button onclick="addBalance(${i})">Recharge</button>
           <button onclick="toggleBlock(${i})">${u.blocked ? 'Unblock' : 'Block'}</button>
@@ -120,7 +148,12 @@
       saveData(userKey, list);
 
       const history = getData(txnKey);
-      history.push({ id: list[index].id, name: list[index].name, amount: amt, time: new Date().toLocaleString() });
+      history.push({
+        id: list[index].id,
+        name: list[index].name,
+        amount: amt,
+        time: new Date().toLocaleString()
+      });
       saveData(txnKey, history);
 
       alert("Wallet updated!");
@@ -141,11 +174,12 @@
       div.innerHTML = history.map(h => `<div>${h.time} - ₹${h.amount} added to ${h.name} (${h.id})</div>`).join("");
     }
 
+    // Load everything
     loadTournaments();
     loadUsers();
     loadHistory();
   </script>
-  <script src="data.js"></script>
 
+  <script src="data.js"></script>
 </body>
 </html>
