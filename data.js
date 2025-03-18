@@ -1,7 +1,7 @@
-// This file stores all user data (mobile, wallet, transactions, etc.)
+// Users
 var users = [
     {
-        mobile: "9876543210", // You can replace with your mobile
+        mobile: "9876543210",
         wallet: 100,
         blocked: false,
         transactions: [
@@ -17,3 +17,24 @@ var users = [
         registeredTournaments: []
     }
 ];
+
+// Tournaments
+var tournaments = [
+  {
+    id: 1,
+    title: "Squad Match - 4 PM",
+    prize: 100,
+    time: "4:00 PM",
+    joined: 5,
+    maxPlayers: 40
+  },
+  {
+    id: 2,
+    title: "Solo Clash - 6 PM",
+    prize: 50,
+    time: "6:00 PM",
+    joined: 10,
+    maxPlayers: 50
+  }
+];
+
