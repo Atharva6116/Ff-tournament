@@ -15,38 +15,37 @@
         </form>
     </div>
 
+    
     <script src="data.js"></script>
-    <script>
-        document.getElementById("loginForm").addEventListener("submit", function(event) {
-            event.preventDefault();
+<script>
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+        event.preventDefault();
 
-            const mobile = document.getElementById("mobile").value.trim();
-            const otp = document.getElementById("otp").value.trim();
+        var mobile = document.getElementById("mobile").value.trim();
+        var otp = document.getElementById("otp").value.trim();
 
-            if (otp !== "1234") {
-                alert("Invalid OTP! Please use 1234.");
-                return;
-            }
+        if (otp !== "1234") {
+            alert("Invalid OTP! Use 1234.");
+            return;
+        }
 
-            // Check if user exists in data.js
-            const user = users.find(u => u.mobile === mobile);
+        var user = users.find(u => u.mobile === mobile);
 
-            if (!user) {
-                alert("Mobile number not found. Please check or contact admin.");
-                return;
-            }
+        if (!user) {
+            alert("Mobile number not found. Please register or use a valid number.");
+            return;
+        }
 
-            if (user.blocked) {
-                alert("Your account is blocked. Contact admin.");
-                return;
-            }
+        if (user.blocked) {
+            alert("You are blocked from accessing the platform.");
+            return;
+        }
 
-            // Save logged-in user to localStorage
-            localStorage.setItem("loggedInUser", JSON.stringify(user));
+        // Save login
+        localStorage.setItem("mobile", mobile);
+        window.location.href = "tournaments.html";
+    });
+</script>
 
-            // Redirect to tournaments page
-            window.location.href = "tournaments.html";
-        });
-    </script>
 </body>
 </html>
