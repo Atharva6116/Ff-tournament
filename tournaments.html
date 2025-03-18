@@ -4,128 +4,71 @@
   <meta charset="UTF-8">
   <title>Tournaments - FF Tournament Pro</title>
   <link rel="stylesheet" href="style.css">
-  <script src="data.js"></script> <!-- Shared data from admin panel -->
-  <style>
-    body {
-      background: #121212;
-      color: white;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      margin-bottom: 30px;
-    }
-    .tournament-card {
-      background: #1e1e1e;
-      border: 1px solid #444;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 15px;
-    }
-    .tournament-card button {
-      background: #03dac6;
-      color: black;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  </style>
 </head>
 <body>
-
-  <div class="container">
-    <h2>Welcome, <span id="playerName"></span>!</h2>
-    <p>Your Player ID: <strong id="playerID"></strong></p>
-    <p>Your Wallet: ₹<span id="walletAmount"></span></p>
-
-    <!-- Wallet Recharge Section -->
-    <h3>Recharge Wallet</h3>
-    <input type="number" id="rechargeAmount" placeholder="Enter amount" />
-    <button onclick="rechargeWallet()">Recharge</button>
+  <div class="header">
+    <h2>Welcome to FF Tournament Pro</h2>
+    <div id="wallet">Wallet: ₹0</div>
   </div>
 
-  <div class="container">
-    <h2>Available Tournaments</h2>
-    <div id="tournamentContainer" style="max-height: 500px; overflow-y: auto;"></div>
-  </div>
+  <div id="tournamentsContainer" class="tournaments"></div>
 
+  <script src="data.js"></script>
   <script>
-    // User info from localStorage
-    const userID = localStorage.getItem("userID");
-    const userIGN = localStorage.getItem("userIGN");
-    const playerName = document.getElementById("playerName");
-    const playerID = document.getElementById("playerID");
-    const walletDisplay = document.getElementById("walletAmount");
-
-    const currentUser = users.find(u => u.mobile === userID);
-
-    if (!currentUser) {
-      alert("User not found. Please login again.");
-    } else if (currentUser.blocked) {
-      alert("You are blocked from playing tournaments.");
-    } else {
-      playerName.textContent = userIGN || "Player";
-      playerID.textContent = userID;
-      walletDisplay.textContent = currentUser.wallet;
-
-      loadTournaments();
+    const mobile = localStorage.getItem("mobile");
+    if (!mobile) {
+      alert("Please login first.");
+      window.location.href = "login.html";
     }
 
-    function updateWalletDisplay() {
-      walletDisplay.textContent = currentUser.wallet;
+    const user = users.find(u => u.mobile === mobile);
+    if (!user) {
+      alert("User not found. Please register.");
+      window.location.href = "login.html";
     }
 
-    function rechargeWallet() {
-      const amount = parseInt(document.getElementById("rechargeAmount").value);
-      if (amount > 0) {
-        currentUser.wallet += amount;
-        updateWalletDisplay();
-        alert("Wallet recharged successfully!");
-      } else {
-        alert("Enter a valid amount to recharge.");
-      }
-    }
+    // Display wallet balance
+    const walletDiv = document.getElementById("wallet");
+    walletDiv.innerText = `Wallet: ₹${user.wallet}`;
 
-    function registerForTournament(tournamentId) {
-      const tournament = tournaments.find(t => t.id === tournamentId);
-      if (!tournament) return alert("Tournament not found.");
+    const container = document.getElementById("tournamentsContainer");
 
-      if (currentUser.wallet < tournament.entryFee) {
-        return alert("Insufficient balance.");
+    tournaments.forEach((tournament, index) => {
+      const card = document.createElement("div");
+      card.className = "tournament-card";
+      card.innerHTML = `
+        <h3>${tournament.name}</h3>
+        <p>Prize: ₹${tournament.prize}</p>
+        <p>Time: ${tournament.time}</p>
+        <p id="joined-${index}">Players Joined: ${tournament.joined}</p>
+        <button onclick="register(${index})">Register</button>
+      `;
+      container.appendChild(card);
+    });
+
+    function register(index) {
+      const tournament = tournaments[index];
+
+      if (user.wallet < tournament.entryFee) {
+        alert("Insufficient balance. Please recharge your wallet.");
+        return;
       }
 
-      tournament.joined++;
-      currentUser.wallet -= tournament.entryFee;
-      registrations.push({ tournamentId, userId: userID });
+      if (tournament.players.includes(user.mobile)) {
+        alert("Already registered for this tournament.");
+        return;
+      }
 
-      updateWalletDisplay();
-      loadTournaments();
+      // Deduct entry fee and register
+      user.wallet -= tournament.entryFee;
+      tournament.joined += 1;
+      tournament.players.push(user.mobile);
 
-      alert(`You are registered for ${tournament.name}. ₹${tournament.entryFee} deducted.`);
-    }
-
-    function loadTournaments() {
-      const container = document.getElementById("tournamentContainer");
-      container.innerHTML = "";
-
-      tournaments.forEach(t => {
-        const div = document.createElement("div");
-        div.className = "tournament-card";
-        div.innerHTML = `
-          <p><strong>${t.name}</strong></p>
-          <p>Players Joined: ${t.joined}/${t.slots}</p>
-          <p>Prize: ${t.prize}</p>
-          <p>Time: ${t.time}</p>
-          <button onclick="registerForTournament('${t.id}')">Register (₹${t.entryFee})</button>
-        `;
-        container.appendChild(div);
-      });
+      // Update UI
+      walletDiv.innerText = `Wallet: ₹${user.wallet}`;
+      document.getElementById(`joined-${index}`).innerText = `Players Joined: ${tournament.joined}`;
+      alert("Successfully registered!");
     }
   </script>
-
 </body>
 </html>
