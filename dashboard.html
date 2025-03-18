@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - FF Tournament Pro</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #121212;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .tournament {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .tournament h3 {
+      margin: 0 0 10px;
+    }
+    .register-btn {
+      background: #00c853;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .register-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Welcome to FF Tournament Pro</h2>
+    <p>Your Balance: ₹<span id="walletBalance">0</span></p>
+    <div id="tournamentList"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    const mobile = localStorage.getItem("loginMobile");
+    const user = users.find(u => u.mobile === mobile);
+
+    if (!user || user.blocked) {
+      alert("Access denied. You are not logged in or you are blocked.");
+      window.location.href = "index.html";
+    }
+
+    document.getElementById("walletBalance").innerText = user.balance;
+
+    const list = document.getElementById("tournamentList");
+
+    tournaments.forEach((t, index) => {
+      const joined = t.joined || [];
+      const isJoined = joined.includes(mobile);
+      const canJoin = user.balance >= t.entryFee;
+
+      const div = document.createElement("div");
+      div.className = "tournament";
+      div.innerHTML = `
+        <h3>${t.name}</h3>
+        <p>Prize: ₹${t.prize} | Entry: ₹${t.entryFee} | Time: ${t.time}</p>
+        <p>Players Joined: ${joined.length}/100</p>
+        <button class="register-btn" ${isJoined || !canJoin ? 'disabled' : ''} onclick="register(${index})">
+          ${isJoined ? 'Joined' : 'Register'}
+        </button>
+      `;
+      list.appendChild(div);
+    });
+
+    function register(index) {
+      const t = tournaments[index];
+
+      if (t.joined.includes(mobile)) {
+        alert("You have already joined this tournament.");
+        return;
+      }
+
+      if (user.balance < t.entryFee) {
+        alert("Not enough balance.");
+        return;
+      }
+
+      t.joined.push(mobile);
+      user.balance -= t.entryFee;
+      saveData();
+
+      alert("Registered successfully!");
+      location.reload();
+    }
+  </script>
+</body>
+</html>
