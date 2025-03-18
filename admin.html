@@ -2,31 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login - FF Tournament Pro</title>
   <style>
     body {
-      background: #121212;
+      background: #0e0e0e;
       color: #fff;
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
     }
+
     input, button {
       padding: 10px;
       font-size: 16px;
       margin: 10px;
       width: 250px;
     }
+
+    button {
+      background-color: #00c853;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #009944;
+    }
   </style>
 </head>
 <body>
+
   <h2>Admin Login</h2>
   <input type="password" id="adminPass" placeholder="Enter Admin Password">
   <button onclick="login()">Login</button>
+
+  <script src="data.js"></script> <!-- This is the shared data file -->
 
   <script>
     function login() {
@@ -39,5 +53,6 @@
       }
     }
   </script>
+
 </body>
 </html>
