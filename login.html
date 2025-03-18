@@ -15,10 +15,9 @@
 
   <script src="data.js"></script>
   <script>
-  const users = JSON.parse(localStorage.getItem("users")) || [];
-
   function login() {
     const mobile = document.getElementById("mobile").value.trim();
+    let users = JSON.parse(localStorage.getItem("users")) || [];
 
     const user = users.find(u => u.mobile === mobile);
     if (!user) {
@@ -27,11 +26,12 @@
       return;
     }
 
-    localStorage.setItem("mobile", user.mobile);
+    localStorage.setItem("mobile", mobile);
     alert("Login successful!");
     window.location.href = "tournaments.html";
   }
 </script>
+
 
 </body>
 </html>
