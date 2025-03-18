@@ -1,32 +1,32 @@
-// data.js
-
-// Default tournament list
-var tournaments = [
-  {
-    id: "t1",
-    name: "Free Fire Solo Rush",
-    prize: 500,
-    time: "6:00 PM",
-    entryFee: 20,
-    joined: 0
-  },
-  {
-    id: "t2",
-    name: "Squad Showdown",
-    prize: 1000,
-    time: "8:00 PM",
-    entryFee: 40,
-    joined: 0
-  },
-  {
-    id: "t3",
-    name: "Ultimate Survival",
-    prize: 1500,
-    time: "10:00 PM",
-    entryFee: 50,
-    joined: 0
+// Check if initial data already exists
+if (!localStorage.getItem("tournaments")) {
+  const initialTournaments = [];
+  for (let i = 1; i <= 30; i++) {
+    initialTournaments.push({
+      id: i,
+      name: `FF Tournament #${i}`,
+      prize: 100,
+      entryFee: 10,
+      time: `7:00 PM`,
+      joined: []
+    });
   }
-];
+  localStorage.setItem("tournaments", JSON.stringify(initialTournaments));
+}
 
-// Check and load users from localStorage if already saved
-var users = JSON.parse(localStorage.getItem("users")) || [];
+if (!localStorage.getItem("users")) {
+  const initialUsers = [
+    { mobile: "9876543210", balance: 100, blocked: false }
+  ];
+  localStorage.setItem("users", JSON.stringify(initialUsers));
+}
+
+// Load data into JS variables
+var tournaments = JSON.parse(localStorage.getItem("tournaments"));
+var users = JSON.parse(localStorage.getItem("users"));
+
+// Save updated data back to localStorage
+function saveData() {
+  localStorage.setItem("tournaments", JSON.stringify(tournaments));
+  localStorage.setItem("users", JSON.stringify(users));
+}
