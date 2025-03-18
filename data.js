@@ -1,40 +1,32 @@
-// Users
-var users = [
-    {
-        mobile: "9876543210",
-        wallet: 100,
-        blocked: false,
-        transactions: [
-            { type: "recharge", amount: 100, time: "2025-03-18 10:00 AM" }
-        ],
-        registeredTournaments: []
-    },
-    {
-        mobile: "9999999999",
-        wallet: 50,
-        blocked: true,
-        transactions: [],
-        registeredTournaments: []
-    }
-];
+// data.js
 
-// Tournaments
+// Default tournament list
 var tournaments = [
   {
-    id: 1,
-    title: "Squad Match - 4 PM",
-    prize: 100,
-    time: "4:00 PM",
-    joined: 5,
-    maxPlayers: 40
+    id: "t1",
+    name: "Free Fire Solo Rush",
+    prize: 500,
+    time: "6:00 PM",
+    entryFee: 20,
+    joined: 0
   },
   {
-    id: 2,
-    title: "Solo Clash - 6 PM",
-    prize: 50,
-    time: "6:00 PM",
-    joined: 10,
-    maxPlayers: 50
+    id: "t2",
+    name: "Squad Showdown",
+    prize: 1000,
+    time: "8:00 PM",
+    entryFee: 40,
+    joined: 0
+  },
+  {
+    id: "t3",
+    name: "Ultimate Survival",
+    prize: 1500,
+    time: "10:00 PM",
+    entryFee: 50,
+    joined: 0
   }
 ];
 
+// Check and load users from localStorage if already saved
+var users = JSON.parse(localStorage.getItem("users")) || [];
