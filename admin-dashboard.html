@@ -5,181 +5,158 @@
   <title>Admin Dashboard - FF Tournament Pro</title>
   <style>
     body {
-      background: #121212;
+      background: #111;
       color: #fff;
       font-family: sans-serif;
       padding: 20px;
     }
-    h2 {
-      margin-top: 40px;
-      color: #00e676;
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 15px;
+      border: 1px solid #444;
+      border-radius: 10px;
+      background-color: #1c1c1c;
     }
     input, button {
       padding: 8px;
       margin: 5px;
-    }
-    .section {
-      border: 1px solid #333;
-      padding: 15px;
-      margin-bottom: 20px;
-      background: #1e1e1e;
+      background: #222;
+      border: 1px solid #555;
+      color: #fff;
     }
     button {
-      background-color: #00e676;
-      color: #000;
+      background: #00c853;
       border: none;
       cursor: pointer;
     }
     button:hover {
-      opacity: 0.9;
-    }
-    .logout {
-      float: right;
-      background-color: #f44336;
-      color: white;
+      background: #00a344;
     }
   </style>
 </head>
 <body>
-  <h1>Admin Dashboard <button class="logout" onclick="logout()">Logout</button></h1>
 
-  <div class="section">
-    <h2>Add Tournament</h2>
-    <input type="text" id="tName" placeholder="Tournament Name">
-    <input type="text" id="tTime" placeholder="Time (e.g., 6 PM)">
-    <input type="text" id="tPrize" placeholder="Prize (e.g., ₹1000)">
-    <input type="number" id="tFee" placeholder="Entry Fee">
-    <button onclick="addTournament()">Add</button>
-  </div>
+<h1>Admin Dashboard</h1>
 
-  <div class="section">
-    <h2>All Tournaments</h2>
-    <div id="allTournaments"></div>
-  </div>
+<div class="section">
+  <h2>Add Tournament</h2>
+  <input type="text" id="title" placeholder="Tournament Title">
+  <input type="text" id="time" placeholder="Time (e.g. 6:00 PM)">
+  <input type="text" id="prize" placeholder="Prize (e.g. ₹100)">
+  <input type="number" id="entry" placeholder="Entry Fee">
+  <button onclick="addTournament()">Add</button>
+</div>
 
-  <div class="section">
-    <h2>All Users</h2>
-    <div id="userList"></div>
-  </div>
+<div class="section">
+  <h2>All Tournaments</h2>
+  <div id="tournamentList"></div>
+</div>
 
-  <div class="section">
-    <h2>Transaction History</h2>
-    <div id="historyLog"></div>
-  </div>
+<div class="section">
+  <h2>All Users</h2>
+  <div id="userList"></div>
+</div>
 
-  <script>
-    // Access Check
-    if (localStorage.getItem("adminLoggedIn") !== "true") {
-      alert("Access denied");
-      window.location.href = "admin.html";
+<script src="data.js"></script>
+<script>
+  if (localStorage.getItem("adminLoggedIn") !== "true") {
+    alert("Access Denied!");
+    window.location.href = "admin.html";
+  }
+
+  function addTournament() {
+    const title = document.getElementById("title").value.trim();
+    const time = document.getElementById("time").value.trim();
+    const prize = document.getElementById("prize").value.trim();
+    const entry = parseInt(document.getElementById("entry").value.trim());
+
+    if (!title || !time || !prize || isNaN(entry)) {
+      alert("Fill all fields correctly!");
+      return;
     }
 
-    function logout() {
-      localStorage.removeItem("adminLoggedIn");
-      alert("Logged out");
-      window.location.href = "admin.html";
-    }
+    const newTournament = {
+      id: "t" + Date.now(),
+      title,
+      time,
+      prize,
+      entry,
+      max: 30,
+      joined: 0
+    };
 
-    const tournamentKey = "tournamentList";
-    const userKey = "userList";
-    const txnKey = "transactionHistory";
+    tournaments.push(newTournament);
+    saveData();
+    alert("Tournament added!");
+    location.reload();
+  }
 
-    const getData = (key) => JSON.parse(localStorage.getItem(key) || "[]");
-    const saveData = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+  function loadTournaments() {
+    const div = document.getElementById("tournamentList");
+    div.innerHTML = "";
 
-    function addTournament() {
-      const name = document.getElementById("tName").value.trim();
-      const time = document.getElementById("tTime").value.trim();
-      const prize = document.getElementById("tPrize").value.trim();
-      const fee = parseInt(document.getElementById("tFee").value);
+    tournaments.forEach((t, i) => {
+      div.innerHTML += `
+        <div>
+          <strong>${t.title}</strong> - ${t.time} - ₹${t.prize} - Entry ₹${t.entry} - Joined: ${t.joined}/${t.max}
+          <button onclick="deleteTournament(${i})">Delete</button>
+        </div>
+      `;
+    });
+  }
 
-      if (!name || !time || !prize || isNaN(fee)) {
-        alert("Fill all fields properly!");
-        return;
-      }
-
-      const list = getData(tournamentKey);
-      const id = "t" + Date.now();
-      list.push({ id, name, time, prize, fee });
-      saveData(tournamentKey, list);
-      alert("Tournament added!");
+  function deleteTournament(index) {
+    if (confirm("Delete this tournament?")) {
+      tournaments.splice(index, 1);
+      saveData();
       loadTournaments();
     }
+  }
 
-    function loadTournaments() {
-      const list = getData(tournamentKey);
-      const div = document.getElementById("allTournaments");
-      div.innerHTML = "";
-      list.forEach(t => {
-        div.innerHTML += `<div style="margin-bottom:10px;">
-          <strong>${t.name}</strong> - Prize: ${t.prize} | Time: ${t.time} | Fee: ₹${t.fee}
-          <button onclick="deleteTournament('${t.id}')">Delete</button>
-        </div>`;
-      });
-    }
+  function loadUsers() {
+    const div = document.getElementById("userList");
+    div.innerHTML = "";
 
-    function deleteTournament(id) {
-      let list = getData(tournamentKey);
-      list = list.filter(t => t.id !== id);
-      saveData(tournamentKey, list);
-      loadTournaments();
-    }
-
-    function loadUsers() {
-      const list = getData(userKey);
-      const div = document.getElementById("userList");
-      div.innerHTML = "";
-      list.forEach((u, i) => {
-        div.innerHTML += `<div style="margin-bottom:10px;">
-          ${u.name} (ID: ${u.id}) - ₹${u.wallet}
+    users.forEach((u, i) => {
+      const wallet = userWallets[u.mobile] || 0;
+      div.innerHTML += `
+        <div>
+          ${u.mobile} - ₹${wallet} - ${u.blocked ? "<b>Blocked</b>" : "Active"}
           <input type="number" id="addBal${i}" placeholder="Add ₹">
-          <button onclick="addBalance(${i})">Recharge</button>
-          <button onclick="toggleBlock(${i})">${u.blocked ? 'Unblock' : 'Block'}</button>
-        </div>`;
-      });
+          <button onclick="recharge(${i})">Recharge</button>
+          <button onclick="toggleBlock(${i})">${u.blocked ? "Unblock" : "Block"}</button>
+        </div>
+      `;
+    });
+  }
+
+  function recharge(index) {
+    const amt = parseInt(document.getElementById("addBal" + index).value);
+    if (isNaN(amt) || amt <= 0) {
+      alert("Enter valid amount");
+      return;
     }
 
-    function addBalance(index) {
-      const list = getData(userKey);
-      const amt = parseInt(document.getElementById("addBal" + index).value);
-      if (!amt || amt <= 0) return alert("Invalid amount");
-
-      list[index].wallet += amt;
-      saveData(userKey, list);
-
-      const history = getData(txnKey);
-      history.push({
-        id: list[index].id,
-        name: list[index].name,
-        amount: amt,
-        time: new Date().toLocaleString()
-      });
-      saveData(txnKey, history);
-
-      alert("Wallet updated!");
-      loadUsers();
-      loadHistory();
-    }
-
-    function toggleBlock(index) {
-      const list = getData(userKey);
-      list[index].blocked = !list[index].blocked;
-      saveData(userKey, list);
-      loadUsers();
-    }
-
-    function loadHistory() {
-      const history = getData(txnKey);
-      const div = document.getElementById("historyLog");
-      div.innerHTML = history.map(h => `<div>${h.time} - ₹${h.amount} added to ${h.name} (${h.id})</div>`).join("");
-    }
-
-    // Load everything
-    loadTournaments();
+    const user = users[index];
+    userWallets[user.mobile] = (userWallets[user.mobile] || 0) + amt;
+    saveData();
+    alert("Balance updated");
     loadUsers();
-    loadHistory();
-  </script>
+  }
 
-  <script src="data.js"></script>
+  function toggleBlock(index) {
+    users[index].blocked = !users[index].blocked;
+    saveData();
+    loadUsers();
+  }
+
+  loadTournaments();
+  loadUsers();
+</script>
+
 </body>
 </html>
