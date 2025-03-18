@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recharge - FF Tournament Pro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Recharge Wallet</h2>
+    <form id="rechargeForm">
+      <input type="text" id="mobile" placeholder="Mobile Number" required><br><br>
+      <input type="number" id="amount" placeholder="Amount" required><br><br>
+      <button type="submit">Recharge</button>
+    </form>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    const mobileField = document.getElementById("mobile");
+    const savedMobile = localStorage.getItem("mobile");
+    if (savedMobile) {
+      mobileField.value = savedMobile;
+    }
+
+    document.getElementById("rechargeForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const mobile = mobileField.value.trim();
+      const amount = parseInt(document.getElementById("amount").value.trim());
+
+      const user = users.find(u => u.mobile === mobile);
+      if (!user) {
+        alert("User not found!");
+        return;
+      }
+
+      user.wallet += amount;
+      alert(`Wallet recharged successfully! New balance: ₹${user.wallet}`);
+
+      window.location.href = "tournaments.html";
+    });
+  </script>
+</body>
+</html>
