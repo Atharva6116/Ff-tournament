@@ -1,20 +1,29 @@
-
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF Tournament Pro</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Login - FF Tournament Pro</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>FF Tournament Pro</h1>
-        <p>Welcome to the ultimate Free Fire tournament platform!</p>
-        <a href="login.html">Login</a> | <a href="register.html">Register</a>
-    </div>
-    
-    <script src="data.js"></script>
+  <div class="container">
+    <h2>Login</h2>
+    <input type="text" id="mobile" placeholder="Enter Mobile Number">
+    <button onclick="sendOTP()">Send OTP</button>
+    <p>Don't have an account? <a href="register.html">Register here</a></p>
+  </div>
 
+  <script>
+    function sendOTP() {
+      const mobile = document.getElementById("mobile").value;
+      if (mobile.length !== 10 || isNaN(mobile)) {
+        alert("Enter a valid 10-digit mobile number");
+        return;
+      }
+      localStorage.setItem("loginMobile", mobile);
+      window.location.href = "otp.html";
+    }
+  </script>
 </body>
 </html>
