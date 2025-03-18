@@ -2,95 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>FF Tournament Pro - Tournaments</title>
-  <style>
-    body {
-      background: #111;
-      color: white;
-      font-family: sans-serif;
-      padding: 20px;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .wallet {
-      color: #00ff88;
-    }
-    .tournament {
-      background: #1e1e1e;
-      border: 1px solid #444;
-      padding: 15px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-    }
-    .tournament h3 {
-      margin: 0;
-    }
-    .register-btn {
-      margin-top: 10px;
-      padding: 5px 10px;
-      background: #00cc66;
-      color: white;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-  </style>
+  <title>Tournaments - FF Tournament Pro</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="header">
     <h2>Welcome to FF Tournament Pro</h2>
-    <div class="wallet" id="walletDisplay">Wallet: ₹0</div>
+    <div id="walletDisplay">Wallet: ₹0</div>
+    <button onclick="window.location.href='recharge.html'" class="recharge-btn">Recharge Wallet</button>
   </div>
 
   <div id="tournamentList"></div>
 
   <script src="data.js"></script>
   <script>
-    // Get current logged-in user
-    const currentUser = localStorage.getItem("loggedInUser");
-    const user = users.find(u => u.mobile === currentUser);
+    const mobile = localStorage.getItem("loggedInMobile");
+    let users = JSON.parse(localStorage.getItem("users")) || [];
 
-    if (!user || user.blocked) {
-      alert("You are not logged in or blocked!");
-      window.location.href = "login.html";
+    let user = users.find(u => u.mobile === mobile);
+    if (!user) {
+      alert("You are not logged in. Redirecting...");
+      window.location.href = "index.html";
+    } else if (user.blocked) {
+      document.body.innerHTML = "<h2 style='color:red;'>You are blocked by Admin</h2>";
+    } else {
+      document.getElementById("walletDisplay").innerText = "Wallet: ₹" + user.wallet;
+
+      // Load tournaments
+      const list = document.getElementById("tournamentList");
+      tournaments.forEach((t, i) => {
+        const alreadyJoined = user.registeredTournaments.includes(t.id);
+        const btn = alreadyJoined
+          ? `<button disabled>Already Joined</button>`
+          : `<button onclick="register(${i})">Register</button>`;
+
+        const card = `
+          <div class="tournament-card">
+            <h3>${t.name}</h3>
+            <p>Prize: ₹${t.prize}</p>
+            <p>Time: ${t.time}</p>
+            <p id="joined-${i}">Players Joined: ${t.joined}</p>
+            ${btn}
+          </div>
+        `;
+        list.innerHTML += card;
+      });
     }
 
-    // Show wallet balance
-    document.getElementById("walletDisplay").innerText = "Wallet: ₹" + user.wallet;
+    function register(index) {
+      const t = tournaments[index];
+      if (user.wallet < t.entryFee) {
+        alert("Insufficient balance. Please recharge.");
+        return;
+      }
 
-    // Load tournaments
-    const tournamentList = document.getElementById("tournamentList");
-    tournaments.forEach(t => {
-      const div = document.createElement("div");
-      div.className = "tournament";
-      div.innerHTML = `
-        <h3>${t.title}</h3>
-        <p>Prize: ₹${t.prize}</p>
-        <p>Time: ${t.time}</p>
-        <p>Players Joined: ${t.joined}/${t.maxPlayers}</p>
-        <button class="register-btn" onclick="register(${t.id})">Register</button>
-      `;
-      tournamentList.appendChild(div);
-    });
+      if (user.registeredTournaments.includes(t.id)) {
+        alert("You are already registered.");
+        return;
+      }
 
-    // Register logic
-    function register(tournamentId) {
-      const t = tournaments.find(t => t.id === tournamentId);
-      if (!t) return alert("Tournament not found!");
-      if (user.wallet < 10) return alert("Not enough balance!");
-      if (user.registeredTournaments.includes(tournamentId)) return alert("Already registered!");
+      user.wallet -= t.entryFee;
+      user.registeredTournaments.push(t.id);
+      tournaments[index].joined += 1;
 
-      // Register the user
-      user.wallet -= 10;
-      user.registeredTournaments.push(tournamentId);
-      t.joined += 1;
-
-      // Save user data back to localStorage (simulate database)
-      localStorage.setItem("loggedInUser", user.mobile);
+      // Save updated user & tournament data
+      localStorage.setItem("users", JSON.stringify(users));
       document.getElementById("walletDisplay").innerText = "Wallet: ₹" + user.wallet;
-      alert("Registered successfully!");
+      document.getElementById(`joined-${index}`).innerText = "Players Joined: " + tournaments[index].joined;
+      alert("Registration successful!");
       location.reload();
     }
   </script>
